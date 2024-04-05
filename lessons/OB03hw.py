@@ -121,7 +121,20 @@ class Zoo:
         for employee in self.employees:
             employee.make_sound()
 
-# MAIN #
+    def load_zoo_info(self, file_name):
+        with open(file_name, 'r') as file:
+            data = eval(file.read())
+            self.animals = data["animals"]
+            self.employees = data["employees"]
+
+    def save_zoo_info(self, file_name):
+        data = {
+            "animals": self.animals,
+            "employees": self.employees
+        }
+        with open(file_name, 'w') as file:
+            file.write(str(data))
+
 
 print('start')
 my_zoo = Zoo()
@@ -140,8 +153,15 @@ my_zoo.add_employee("Alice", 32,"zookeeper")
 my_zoo.add_employee("Bob", 45, "veterinarian")
 my_zoo.add_employee("Ivan", 45, "director")
 
-# Выводим информацию о зоопарке
+# Load information from a file
+# my_zoo.load_zoo_info("zoo_info.json")
+
+# Display zoo information
 my_zoo.display_zoo_info()
+
+# Save information to a file
+my_zoo.save_zoo_info("zoo_info.json")
+
 
 my_zoo.make_noise()
 my_zoo.say_hi()
