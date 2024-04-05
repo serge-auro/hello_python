@@ -57,4 +57,4 @@ store1.update_price("apples", 1.1)
 print(store1.get_price("apples"))
 
 store1.remove_item("bananas")
-print(store1.get_price("bananas")) 
+print(store1.get_price("bananas"))
