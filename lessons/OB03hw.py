@@ -8,10 +8,10 @@
 import json
 
 class Animal:
-    def __init__(self, name, age, type):
+    def __init__(self, name, age, species):
         self.name = name
         self.age = age
-        self.type = type
+        self.species = species
 
     def make_sound(self):
         print(f'{self.name} makes sound')
@@ -79,12 +79,12 @@ class Zoo:
         self.animals = []
         self.employees = []
 
-    def add_animal(self, name, age, sound, spec_type, type):
-        if type == 'bird':
+    def add_animal(self, name, age, sound, spec_type, species):
+        if species == 'bird':
             new_animal = Bird(name, age, sound, spec_type)
-        elif type == 'mammal':
+        elif species == 'mammal':
             new_animal = Mammal(name, age, sound, spec_type)
-        elif type == 'reptile':
+        elif species == 'reptile':
             new_animal = Reptile(name, age, sound, spec_type)
         else:
             new_animal = Animal(name, age, "others")
@@ -103,7 +103,7 @@ class Zoo:
         if len(self.animals) > 0:
             print("Animals in the zoo:")
             for animal in self.animals:
-                print(f"{animal.name} {str(animal.age)}")
+                print(f"{animal.name} {str(animal.age)} {animal.species}")
         else:
             print("No animals in the zoo")
 
@@ -136,8 +136,10 @@ class Zoo:
                 'name': animal.name,
                 'age': animal.age,
                 'sound': animal.sound,
-                #'size': animal.size,
-                'type': animal.type
+                'wings_type': getattr(animal, 'wings_type', None),
+                'size': getattr(animal, 'size', None),
+                'tile_type': getattr(animal, 'tile_type', None),
+                'species': animal.species
             })
         # Добавляем информацию о сотрудниках
         for employee in self.employees:
@@ -159,13 +161,31 @@ class Zoo:
         self.employees = []
         # Добавляем животных из сохраненных данных
         for animal_data in zoo_data['animals']:
-            self.add_animal(
-                animal_data['name'],
-                animal_data['age'],
-                animal_data['sound'],
-                animal_data['size'],
-                animal_data['type']
-            )
+            species = animal_data.get('species')
+            if species == 'bird':
+                self.add_animal(
+                    animal_data['name'],
+                    animal_data['age'],
+                    animal_data['sound'],
+                    animal_data.get('wings_type'),
+                    species
+                )
+            elif species == 'mammal':
+                self.add_animal(
+                    animal_data['name'],
+                    animal_data['age'],
+                    animal_data['sound'],
+                    animal_data.get('tile_type'),
+                    species
+                )
+            else:
+                self.add_animal(
+                    animal_data['name'],
+                    animal_data['age'],
+                    animal_data['sound'],
+                    animal_data.get('size'),
+                    species
+                )
         # Добавляем сотрудников из сохраненных данных
         for employee_data in zoo_data['employees']:
             self.add_employee(
@@ -182,27 +202,27 @@ my_zoo = Zoo()
 my_zoo.display_zoo_info()
 
 # Add animals
-my_zoo.add_animal('Pretty', 5, "Coo coo", 'short', "bird")
-my_zoo.add_animal('Scratch', 6, "Hoo hoo", 'long', "bird")
-my_zoo.add_animal('Donny', 8, "Meow", 'middle', "mammal")
-my_zoo.add_animal('Meggy', 12, "Woof", 'big', "mammal")
-my_zoo.add_animal('Marta', 1, "Shee", 'ling tile', "reptile")
-my_zoo.add_animal('Rose', 2, "Shoo", 'no tile', "reptile")
-my_zoo.add_animal('Mimi', 3, "Yik yik", 'big', "reptile")
-
-# Add employees
-my_zoo.add_employee("Alice", 32,"zookeeper")
-my_zoo.add_employee("Bob", 45, "veterinarian")
-my_zoo.add_employee("Ivan", 45, "director")
+# my_zoo.add_animal('Pretty', 5, "Coo coo", 'short', "bird")
+# my_zoo.add_animal('Scratch', 6, "Hoo hoo", 'long', "bird")
+# my_zoo.add_animal('Donny', 8, "Meow", 'middle', "mammal")
+# my_zoo.add_animal('Meggy', 12, "Woof", 'big', "mammal")
+# my_zoo.add_animal('Marta', 1, "Shee", 'ling tile', "reptile")
+# my_zoo.add_animal('Rose', 2, "Shoo", 'no tile', "reptile")
+# my_zoo.add_animal('Mimi', 3, "Yik yik", 'big', "reptile")
+#
+# # Add employees
+# my_zoo.add_employee("Alice", 32,"zookeeper")
+# my_zoo.add_employee("Bob", 45, "veterinarian")
+# my_zoo.add_employee("Ivan", 45, "director")
 
 # Load information from a file
-# my_zoo.load_from_json()
+my_zoo.load_from_json()
 
 # Display zoo information
 my_zoo.display_zoo_info()
 
 # Save information to a file
-my_zoo.save_to_json()  # Сохраняем данные в файл
+# my_zoo.save_to_json()  # Сохраняем данные в файл
 
 
 my_zoo.make_noise()
