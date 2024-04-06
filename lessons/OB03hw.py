@@ -5,10 +5,13 @@
 # 5. Создайте классы для сотрудников, например, `ZooKeeper`, `Veterinarian`, которые могут иметь специфические методы (например, `feed_animal()` для `ZooKeeper` и `heal_animal()` для `Veterinarian`).
 # Попробуйте добавить дополнительные функции в вашу программу, такие как сохранение информации о зоопарке в файл и возможность её загрузки, чтобы у вашего зоопарка было "постоянное состояние" между запусками программы.
 
+import json
+
 class Animal:
-    def __init__(self, name, age):
+    def __init__(self, name, age, type):
         self.name = name
         self.age = age
+        self.type = type
 
     def make_sound(self):
         print(f'{self.name} makes sound')
@@ -18,7 +21,7 @@ class Animal:
 
 class Bird(Animal):
     def __init__(self, name, age, sound, wings_type):
-        super().__init__(name, age)
+        super().__init__(name, age, "bird")
         self.sound = sound
         self.wings_type = wings_type
 
@@ -27,7 +30,7 @@ class Bird(Animal):
 
 class Mammal(Animal):
     def __init__(self, name, age, sound, size):
-        super().__init__(name, age)
+        super().__init__(name, age, "mammal")
         self.sound = sound
         self.size = size
 
@@ -36,7 +39,7 @@ class Mammal(Animal):
 
 class Reptile(Animal):
     def __init__(self, name, age, sound, tile_type):
-        super().__init__(name, age)
+        super().__init__(name, age, "reptile")
         self.sound = sound
         self.tile_type = tile_type
 
@@ -84,7 +87,7 @@ class Zoo:
         elif type == 'reptile':
             new_animal = Reptile(name, age, sound, spec_type)
         else:
-            new_animal = Animal(name, age, sound)
+            new_animal = Animal(name, age, "others")
         self.animals.append(new_animal)
 
     def add_employee(self, name, age, position):
@@ -121,25 +124,64 @@ class Zoo:
         for employee in self.employees:
             employee.make_sound()
 
-    def load_zoo_info(self, file_name):
-        with open(file_name, 'r') as file:
-            data = eval(file.read())
-            self.animals = data["animals"]
-            self.employees = data["employees"]
-
-    def save_zoo_info(self, file_name):
-        data = {
-            "animals": self.animals,
-            "employees": self.employees
+    def save_to_json(self):
+        # Создаем словарь для хранения информации о зоопарке
+        zoo_data = {
+            'animals': [],
+            'employees': []
         }
-        with open(file_name, 'w') as file:
-            file.write(str(data))
+        # Добавляем информацию о животных
+        for animal in self.animals:
+            zoo_data['animals'].append({
+                'name': animal.name,
+                'age': animal.age,
+                'sound': animal.sound,
+                #'size': animal.size,
+                'type': animal.type
+            })
+        # Добавляем информацию о сотрудниках
+        for employee in self.employees:
+            zoo_data['employees'].append({
+                'name': employee.name,
+                'age': employee.age,
+                'position': employee.position
+            })
+        # Записываем данные в файл в формате JSON
+        with open("zoo_info.json", 'w') as file:
+            json.dump(zoo_data, file)
 
+    def load_from_json(self):
+        # Читаем данные из файла
+        with open("zoo_info.json", 'r') as file:
+            zoo_data = json.load(file)
+        # Очищаем текущие списки животных и сотрудников
+        self.animals = []
+        self.employees = []
+        # Добавляем животных из сохраненных данных
+        for animal_data in zoo_data['animals']:
+            self.add_animal(
+                animal_data['name'],
+                animal_data['age'],
+                animal_data['sound'],
+                animal_data['size'],
+                animal_data['type']
+            )
+        # Добавляем сотрудников из сохраненных данных
+        for employee_data in zoo_data['employees']:
+            self.add_employee(
+                employee_data['name'],
+                employee_data['age'],
+                employee_data['position']
+            )
+
+# Пример использования:
+my_zoo = Zoo()
 
 print('start')
 my_zoo = Zoo()
 my_zoo.display_zoo_info()
 
+# Add animals
 my_zoo.add_animal('Pretty', 5, "Coo coo", 'short', "bird")
 my_zoo.add_animal('Scratch', 6, "Hoo hoo", 'long', "bird")
 my_zoo.add_animal('Donny', 8, "Meow", 'middle', "mammal")
@@ -148,19 +190,19 @@ my_zoo.add_animal('Marta', 1, "Shee", 'ling tile', "reptile")
 my_zoo.add_animal('Rose', 2, "Shoo", 'no tile', "reptile")
 my_zoo.add_animal('Mimi', 3, "Yik yik", 'big', "reptile")
 
-# Добавляем сотрудников
+# Add employees
 my_zoo.add_employee("Alice", 32,"zookeeper")
 my_zoo.add_employee("Bob", 45, "veterinarian")
 my_zoo.add_employee("Ivan", 45, "director")
 
 # Load information from a file
-# my_zoo.load_zoo_info("zoo_info.json")
+# my_zoo.load_from_json()
 
 # Display zoo information
 my_zoo.display_zoo_info()
 
 # Save information to a file
-my_zoo.save_zoo_info("zoo_info.json")
+my_zoo.save_to_json()  # Сохраняем данные в файл
 
 
 my_zoo.make_noise()
